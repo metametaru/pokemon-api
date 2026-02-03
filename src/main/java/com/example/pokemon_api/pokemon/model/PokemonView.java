@@ -5,9 +5,10 @@ import java.util.List;
 public record PokemonView(
         int id,
         String nameJa,
-        //int height,
-       // int weight,
+        int height,
+        int weight,
         List<String> types,
-        List<String> abilities
+        List<String> abilities,
+        String imageUrl
 ) {
 }
