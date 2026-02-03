@@ -11,13 +11,16 @@ public class PokemonService {
 
     private final PokeApiClient pokeApiClient;
     private final PokemonMapper pokemonMapper;
+    private final PokemonNameCache nameCache;
 
     public PokemonService(
             PokeApiClient pokeApiClient,
-            PokemonMapper pokemonMapper
+            PokemonMapper pokemonMapper,
+            PokemonNameCache nameCache
     ) {
         this.pokeApiClient = pokeApiClient;
         this.pokemonMapper = pokemonMapper;
+        this.nameCache = nameCache;
     }
 
     /**
@@ -42,27 +45,37 @@ public class PokemonService {
                 .toList();
     }
 
-    /**
-     * 単体取得（将来用）
-     */
-//    public PokemonView getPokemonById(int id) {
-//
-//        Pokemon pokemon =
-//                pokeApiClient.fetchPokemonById(id);
-//
-//        return pokemonMapper.toView(pokemon);
-//    }
-
-    // ★ 追加
     public String translatePokemonName(int pokemonId, String fallbackName) {
 
         PokemonSpeciesApiResponse species =
                 pokeApiClient.fetchPokemonSpecies(pokemonId);
 
         return species.names().stream()
-                .filter(n -> "ja-Hrkt".equals(n.language().name()))
+                .filter(n -> "ja-hrkt".equalsIgnoreCase(n.language().name()))
                 .map(PokemonSpeciesApiResponse.NameEntry::name)
                 .findFirst()
                 .orElse(fallbackName);
+    }
+
+    /**
+     * ポケモン名で部分一致検索（キャッシュ使用）
+     */
+    public List<PokemonView> searchPokemon(String query, int limit) {
+        // キャッシュが未構築の場合はエラー
+        if (!nameCache.isInitialized()) {
+            throw new IllegalStateException("検索の準備中です。しばらくお待ちください。");
+        }
+
+        // キャッシュから部分一致検索でIDリストを取得
+        List<Integer> matchedIds = nameCache.search(query, limit);
+
+        // マッチしたIDのポケモン詳細だけ取得
+        return matchedIds.stream()
+                .map(id -> {
+                    Pokemon pokemon = pokeApiClient.fetchPokemonById(id);
+                    String jpName = nameCache.getJapaneseName(id);
+                    return pokemonMapper.toView(pokemon, jpName);
+                })
+                .toList();
     }
 }

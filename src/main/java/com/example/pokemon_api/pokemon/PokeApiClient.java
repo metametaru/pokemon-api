@@ -4,7 +4,6 @@ import com.example.pokemon_api.pokemon.model.*;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
@@ -69,19 +68,4 @@ public class PokeApiClient {
                 .retrieve()
                 .body(TypeApiResponse.class);
     }
-
-
-
-
-    //    public PokemonSpeciesApiResponse fetchPokemonSpecies(String url) {
-//        return restTemplate.getForObject(url, PokemonSpeciesApiResponse.class);
-//    }
-//
-//    public AbilityApiResponse fetchAbility(String url) {
-//        return restTemplate.getForObject(url, AbilityApiResponse.class);
-//    }
-//
-//    public TypeApiResponse fetchType(String url) {
-//        return restTemplate.getForObject(url, TypeApiResponse.class);
-//    }
 }

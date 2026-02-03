@@ -8,5 +8,6 @@ public record Pokemon(
         int height,
         int weight,
         List<TypeSlot> types,
-        List<AbilitySlot> abilities
+        List<AbilitySlot> abilities,
+        Sprites sprites
 ) {}
